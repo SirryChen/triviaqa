@@ -17,7 +17,7 @@ def correct_file_name(target_filename, target_path):
             min_distance = distance
             best_match = candidate_filename
     print('\nchange path:', os.path.join(target_path, target_filename),'  to  ', os.path.join(target_path, best_match))
-    os.rename(os.path.join(target_path, best_match), os.path.join(target_path, target_filename))
+    return os.path.join(target_path, best_match)
 
 
 def get_text(qad, domain):
@@ -25,7 +25,7 @@ def get_text(qad, domain):
     local_file = os.path.join(args.web_dir, qad['Filename']) if domain == 'SearchResults' \
         else os.path.join(args.wikipedia_dir, qad['Filename'])
     if not os.path.exists(local_file):
-        correct_file_name(qad['Filename'], args.web_dir if domain == 'SearchResults' else args.wikipedia_dir)
+        local_file = correct_file_name(qad['Filename'], args.web_dir if domain == 'SearchResults' else args.wikipedia_dir)
     return get_file_contents(local_file, encoding='utf-8')
 
 
