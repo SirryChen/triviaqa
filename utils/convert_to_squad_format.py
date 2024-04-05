@@ -7,9 +7,26 @@ import nltk
 import argparse
 
 
+def correct_file_name(target_filename, target_path):
+    candidate_filenames = os.listdir(target_path)
+    best_match = None
+    min_distance = float('inf')
+    for candidate_filename in candidate_filenames:
+        distance = edit_distance(target_filename, candidate_filename)
+        if distance < min_distance:
+            min_distance = distance
+            best_match = candidate_filename
+    print('\nchange path:', os.path.join(target_path, target_filename),'  to  ', os.path.join(target_path, best_match))
+    os.rename(os.path.join(target_path, best_match), os.path.join(target_path, target_filename))
+
+
 def get_text(qad, domain):
-    local_file = os.path.join(args.web_dir, qad['Filename']) if domain == 'SearchResults' else os.path.join(args.wikipedia_dir, qad['Filename'])
-    return utils.utils.get_file_contents(local_file, encoding='utf-8')
+    qad['Filename'] = qad['Filename'].replace(':', '_').replace('?','').replace('*', '_')
+    local_file = os.path.join(args.web_dir, qad['Filename']) if domain == 'SearchResults' \
+        else os.path.join(args.wikipedia_dir, qad['Filename'])
+    if not os.path.exists(local_file):
+        correct_file_name(qad['Filename'], args.web_dir if domain == 'SearchResults' else args.wikipedia_dir)
+    return get_file_contents(local_file, encoding='utf-8')
 
 
 def select_relevant_portion(text):
